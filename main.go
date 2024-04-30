@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	parseExpression := flag.String("exp", "", "expression to parse")
+	parseExpression := flag.String("exp", "asd", "expression to parse")
 	flag.Parse()
 	if len(*parseExpression) == 0 {
 		panic("parse expression cannot be empty")

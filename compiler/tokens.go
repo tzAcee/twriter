@@ -26,3 +26,15 @@ type TokenMeta struct {
 func NewTokenMeta(t Token, sourcePos SourcePosition) *TokenMeta {
 	return &TokenMeta{t, sourcePos}
 }
+
+func (t TokenMeta) Rune() rune {
+	return t.sourcePos.char
+}
+
+func (t TokenMeta) Ln() uint16 {
+	return t.sourcePos.line
+}
+
+func (t TokenMeta) Col() uint16 {
+	return t.sourcePos.column
+}
