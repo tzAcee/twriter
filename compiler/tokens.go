@@ -8,6 +8,7 @@ const (
 	T_ArrowLeft
 	T_ArrowRight
 	T_LineBreak
+	T_Whitespace
 	T_Number
 	T_Letter
 )

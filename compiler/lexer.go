@@ -8,6 +8,7 @@ var charToTokenMap = map[rune]Token{
 	'<':  T_ArrowLeft,
 	'>':  T_ArrowRight,
 	'\n': T_LineBreak,
+	' ':  T_Whitespace,
 }
 
 func Lex(content string) []TokenMeta {

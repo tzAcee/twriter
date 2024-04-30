@@ -48,10 +48,7 @@ func (p *Parser) parseTrc() (ASTNode, bool, error) {
 	if err != nil {
 		return TrcNode{}, false, err
 	}
-	ok := p.tokenIterator.Step(steps)
-	if !ok {
-		return TrcNode{}, false, errors.New("token iterators upper limit reached")
-	}
+	p.tokenIterator.Step(steps)
 
 	bufferASTNode, err := p.parseBuffer()
 	if err != nil {
@@ -69,7 +66,7 @@ func (p *Parser) parseTrc() (ASTNode, bool, error) {
 func (p *Parser) parseBuffer() (ASTNode, error) {
 	bufferOperations := []BufferOperationNode{}
 
-	for bufferOpASTNode, ok, err := p.parseBufferOperation(); ok; bufferOpASTNode, ok, err = p.parseBufferOperation() {
+	for bufferOpASTNode, ok, err := p.parseBufferOperationNode(); ok; bufferOpASTNode, ok, err = p.parseBufferOperationNode() {
 		if err != nil {
 			return BufferNode{}, err
 		}
@@ -81,10 +78,10 @@ func (p *Parser) parseBuffer() (ASTNode, error) {
 		bufferOperations = append(bufferOperations, bufferOp)
 	}
 
-	return BufferNode{bufferOperations}, nil
+	return BufferNode{bufferOperations, nil}, nil
 }
 
-func (p *Parser) parseBufferOperation() (ASTNode, bool, error) {
+func (p *Parser) parseBufferOperationNode() (ASTNode, bool, error) {
 	var bufferNodeOp BufferOperationNode
 
 	// cant start with bufferOperation
@@ -102,15 +99,36 @@ func (p *Parser) parseBufferOperation() (ASTNode, bool, error) {
 	if err != nil {
 		return bufferNodeOp, false, err
 	}
-
 	runeNode, ok := runeASTNode.(BufferRuneNode)
 	if !ok {
 		return bufferNodeOp, false, errors.New("could not create BufferRuneNode")
 	}
 
+	bufferOpNodes := []BufferOperation{}
+	for {
+		bufferOp, ok := p.parseBufferOperation()
+		if !ok {
+			break
+		}
+
+		bufferOpNodes = append(bufferOpNodes, bufferOp)
+	}
+
 	bufferNodeOp.bufferElement = runeNode
+	bufferNodeOp.operations = bufferOpNodes
 
 	return bufferNodeOp, true, nil
+}
+
+func (p *Parser) parseBufferOperation() (BufferOperation, bool) {
+	isBufferOp, err := p.isBufferOperation()
+	if !isBufferOp || err != nil {
+		return 0, false
+	}
+
+	tokenMeta, _ := p.tokenIterator.Get()
+	p.tokenIterator.Step(1)
+	return BufferOperation(tokenMeta.token), true
 }
 
 func (p *Parser) isBufferOperation() (bool, error) {
@@ -124,8 +142,8 @@ func (p *Parser) isBufferOperation() (bool, error) {
 		T_ArrowRight,
 	}
 
-	for op := range ops {
-		if op == int(tokenMeta.token) {
+	for _, op := range ops {
+		if op == tokenMeta.token {
 			return true, nil
 		}
 	}
@@ -139,10 +157,7 @@ func (p *Parser) parseBufferRuneNode() (ASTNode, error) {
 		return false, errors.New("token iterators upper limit reached")
 	}
 	if tokenMeta.token == T_Letter || tokenMeta.token == T_Number {
-		ok := p.tokenIterator.Step(1)
-		if !ok {
-			return false, errors.New("token iterators upper limit reached")
-		}
+		p.tokenIterator.Step(1)
 		return BufferRuneNode{tokenMeta.Rune()}, nil
 	}
 

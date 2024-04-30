@@ -9,7 +9,17 @@ func NewTokenIterator(t *[]TokenMeta) *TokenIterator {
 	return &TokenIterator{t, 0}
 }
 
+func (t TokenIterator) getNoSkip() (TokenMeta, bool) {
+	tokens := *t.tokens
+
+	if t.index >= uint16(len(tokens)) {
+		return TokenMeta{}, false
+	}
+	return tokens[t.index], true
+}
+
 func (t TokenIterator) Get() (TokenMeta, bool) {
+	t.Skip()
 	tokens := *t.tokens
 
 	if t.index >= uint16(len(tokens)) {
@@ -19,6 +29,7 @@ func (t TokenIterator) Get() (TokenMeta, bool) {
 }
 
 func (t TokenIterator) Peek(n uint16) (TokenMeta, bool) {
+	t.Skip()
 	tokens := *t.tokens
 
 	if t.index+n >= uint16(len(tokens)) {
@@ -27,12 +38,37 @@ func (t TokenIterator) Peek(n uint16) (TokenMeta, bool) {
 	return tokens[t.index+n], true
 }
 
-func (t *TokenIterator) Step(n uint16) bool {
-	if t.index+n >= uint16(len(*t.tokens)) {
+func (t *TokenIterator) Skip() {
+	for {
+		if !t.isSkippable() {
+			break
+		}
+		t.index += 1
+	}
+}
+
+func (t TokenIterator) isSkippable() bool {
+	tokenMeta, ok := t.getNoSkip()
+
+	if !ok {
 		return false
 	}
 
-	t.index += n
+	skippables := [1]Token{
+		T_Whitespace,
+	}
 
-	return true
+	for _, skipper := range skippables {
+		if skipper == tokenMeta.token {
+			return true
+		}
+	}
+
+	return false
+
+}
+
+func (t *TokenIterator) Step(n uint16) {
+	t.Skip()
+	t.index += n
 }
