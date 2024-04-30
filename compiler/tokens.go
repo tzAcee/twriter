@@ -4,9 +4,11 @@ type Token = uint8
 
 const (
 	T_OpeBracket Token = iota
-	T_CloBacket
+	T_CloBracket
 	T_ArrowLeft
 	T_ArrowRight
+	T_CurlyOpen
+	T_CurlyClose
 	T_LineBreak
 	T_Whitespace
 	T_Number

@@ -53,6 +53,10 @@ func (bon *BufferOperationNode) execute(buffer *Buffer) {
 			bon.shiftLeft(&currentIndex, buffer)
 		case BufferOperation(T_ArrowRight):
 			bon.shiftRight(&currentIndex, buffer)
+		case BufferOperation(T_CurlyOpen):
+			bon.switchLeft(&currentIndex, buffer)
+		case BufferOperation(T_CurlyClose):
+			bon.switchRight(&currentIndex, buffer)
 		default:
 			panic(fmt.Sprintf("unsupported buffer operation %d", op))
 		}
@@ -69,19 +73,46 @@ func (bon *BufferOperationNode) shiftLeft(currentIndex *int, buffer *Buffer) {
 		(*buffer)[newIndex] = bon.bufferElement.element
 		*currentIndex = newIndex
 	}
+}
 
+func (bon *BufferOperationNode) switchLeft(currentIndex *int, buffer *Buffer) {
+	if *currentIndex == 0 {
+		*buffer = append([]rune{bon.bufferElement.element}, *buffer...)
+		(*buffer)[1] = ' '
+	} else {
+		newIndex := *currentIndex - 1
+		tmpVal := (*buffer)[newIndex]
+		(*buffer)[newIndex] = bon.bufferElement.element
+		(*buffer)[*currentIndex] = tmpVal
+		*currentIndex = newIndex
+	}
+}
+
+func (bon *BufferOperationNode) switchRight(currentIndex *int, buffer *Buffer) {
+	newIndex := *currentIndex + 1
+	if *currentIndex == len(*buffer)-1 {
+		*buffer = append(*buffer, bon.bufferElement.element)
+		(*buffer)[len(*buffer)-2] = ' '
+	} else {
+
+		tmpVal := (*buffer)[newIndex]
+		(*buffer)[newIndex] = bon.bufferElement.element
+		(*buffer)[*currentIndex] = tmpVal
+	}
+
+	*currentIndex = newIndex
 }
 
 func (bon *BufferOperationNode) shiftRight(currentIndex *int, buffer *Buffer) {
 	(*buffer)[*currentIndex] = ' '
+	newIndex := *currentIndex + 1
 
 	if *currentIndex == len(*buffer)-1 {
 		*buffer = append(*buffer, bon.bufferElement.element)
 	} else {
-		newIndex := *currentIndex + 1
 		(*buffer)[newIndex] = bon.bufferElement.element
-		*currentIndex = newIndex
 	}
+	*currentIndex = newIndex
 }
 
 type BufferRuneNode struct {

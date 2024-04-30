@@ -137,9 +137,11 @@ func (p *Parser) isBufferOperation() (bool, error) {
 		return false, errors.New("token iterators upper limit reached")
 	}
 
-	ops := [2]Token{
+	ops := [4]Token{
 		T_ArrowLeft,
 		T_ArrowRight,
+		T_CurlyClose,
+		T_CurlyOpen,
 	}
 
 	for _, op := range ops {

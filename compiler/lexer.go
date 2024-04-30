@@ -4,9 +4,11 @@ import "strconv"
 
 var charToTokenMap = map[rune]Token{
 	'(':  T_OpeBracket,
-	')':  T_CloBacket,
+	')':  T_CloBracket,
 	'<':  T_ArrowLeft,
 	'>':  T_ArrowRight,
+	'{':  T_CurlyOpen,
+	'}':  T_CurlyClose,
 	'\n': T_LineBreak,
 	' ':  T_Whitespace,
 }
