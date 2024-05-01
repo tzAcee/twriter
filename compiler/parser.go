@@ -64,7 +64,7 @@ func (p *Parser) parseTrc() (ASTNode, bool, error) {
 }
 
 func (p *Parser) parseBuffer() (ASTNode, error) {
-	bufferOperations := []BufferOperationNode{}
+	bufferOperations := []*BufferOperationNode{}
 
 	for bufferOpASTNode, ok, err := p.parseBufferOperationNode(); ok; bufferOpASTNode, ok, err = p.parseBufferOperationNode() {
 		if err != nil {
@@ -75,7 +75,7 @@ func (p *Parser) parseBuffer() (ASTNode, error) {
 		if !okConv {
 			return BufferNode{}, errors.New("could not create BufferOperationNode")
 		}
-		bufferOperations = append(bufferOperations, bufferOp)
+		bufferOperations = append(bufferOperations, &bufferOp)
 	}
 
 	return BufferNode{bufferOperations, nil}, nil
